@@ -11,10 +11,9 @@ import static com.lyc.util.Constant.*;
  * 游戏的主窗口类。
  * 所有游戏展示的内容都要在该类中实现
  */
-public class GameFrame extends Frame {
+public class GameFrame extends Frame implements Runnable{
     //游戏状态
     public static int gameState;
-
     //菜单指向
     private int menuIndex;
 
@@ -25,6 +24,8 @@ public class GameFrame extends Frame {
         initFrame();
         initEventListener();
         initGame();
+        //用于刷新窗口的线程
+        new Thread(this).start();
     }
 
     /**
@@ -49,8 +50,6 @@ public class GameFrame extends Frame {
         setResizable(false);
         //设置窗口可见
         setVisible(true);
-
-        repaint();
     }
 
 
@@ -79,6 +78,9 @@ public class GameFrame extends Frame {
     }
 
     private void drawRun(Graphics g) {
+        //绘制黑色的背景
+        g.setColor(Color.BLACK);
+        g.fillRect(0,0,FRAME_WIDTH,FRAME_HEIGHT);
 
     }
 
@@ -163,7 +165,6 @@ public class GameFrame extends Frame {
                 if(menuIndex<0){
                     menuIndex=MENUS.length-1;
                 }
-                repaint();
                 break;
 
             case KeyEvent.VK_DOWN :
@@ -172,7 +173,6 @@ public class GameFrame extends Frame {
                 if(menuIndex>MENUS.length-1){
                     menuIndex=0;
                 }
-                repaint();
                 break;
 
             case KeyEvent.VK_LEFT :
@@ -183,8 +183,22 @@ public class GameFrame extends Frame {
             case KeyEvent.VK_D :
                 break;
 
+            case KeyEvent.VK_ENTER:
+                //TODO
+                newGame();
+                break;
         }
     }
+
+    /**
+     * 开始新游戏的方法
+     */
+    private void newGame() {
+        gameState=STATE_RUN;
+        //创建坦克对象、敌人的坦克对象
+
+    }
+
 
     private void keyEventHelp(int keyCode) {
 
@@ -200,5 +214,17 @@ public class GameFrame extends Frame {
 
     private void keyEventOver(int keyCode) {
 
+    }
+
+    @Override
+    public void run() {
+        while(true){
+            repaint();
+            try {
+                Thread.sleep(REPAINT_INTERAL);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

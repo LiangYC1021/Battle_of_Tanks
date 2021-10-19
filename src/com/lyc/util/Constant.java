@@ -36,4 +36,5 @@ public class Constant {
     //字体的设置
     public static final Font GAME_FONT =new Font("幼圆",Font.BOLD,24);
 
+    public static final int REPAINT_INTERAL = 360;
 }
