@@ -17,6 +17,8 @@ public class GameFrame extends Frame implements Runnable{
     //菜单指向
     private int menuIndex;
 
+    private Tank myTank;
+
     /**
      * 对窗口进行初始化
      */
@@ -82,6 +84,7 @@ public class GameFrame extends Frame implements Runnable{
         g.setColor(Color.BLACK);
         g.fillRect(0,0,FRAME_WIDTH,FRAME_HEIGHT);
 
+        myTank.draw(g);
     }
 
     private void drawAbout(Graphics g) {
@@ -196,6 +199,7 @@ public class GameFrame extends Frame implements Runnable{
     private void newGame() {
         gameState=STATE_RUN;
         //创建坦克对象、敌人的坦克对象
+        myTank=new Tank(400,200,Tank.DIR_DOWN);
 
     }
 
@@ -209,7 +213,27 @@ public class GameFrame extends Frame implements Runnable{
     }
 
     private void keyEventRun(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.VK_UP:
+            case KeyEvent.VK_W:
+                myTank.setDir(Tank.DIR_UP);
+                break;
 
+            case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_S:
+                myTank.setDir(Tank.DIR_DOWN);
+                break;
+
+            case KeyEvent.VK_LEFT:
+            case KeyEvent.VK_A:
+                myTank.setDir(Tank.DIR_LEFT);
+                break;
+
+            case KeyEvent.VK_RIGHT:
+            case KeyEvent.VK_D:
+                myTank.setDir(Tank.DIR_RIGHT);
+                break;
+        }
     }
 
     private void keyEventOver(int keyCode) {
