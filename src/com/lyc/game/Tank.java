@@ -1,10 +1,12 @@
 package com.lyc.game;
 
+import com.lyc.util.Constant;
 import com.lyc.util.MyUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.awt.List;
+import java.util.List;
+
 
 /**
  * 坦克类
@@ -30,13 +32,13 @@ public class Tank {
 
     private int hp;
     private int atk;
-    private int speed;
+    private int speed=DEFAULT_SPEED;
     private int dir;
     private int state=STATE_STAND;
     private Color color;
 
     //TODO 炮弹
-    private List bullets =new List();
+    private List<Bullet> bullets =new ArrayList();
 
     public Tank(int x,int y,int dir){
         this.x=x;
@@ -49,9 +51,15 @@ public class Tank {
      * 绘制坦克
      * @param g
      */
+    //每一帧都调用draw方法
     public void draw(Graphics g){
-        g.setColor(color);
+        logic();
+        drawTank(g);
+        drawBullets(g);
+    }
 
+    private void drawTank(Graphics g){
+        g.setColor(color);
         //绘制坦克的圆
         g.fillOval(x-RADIUS,y-RADIUS,RADIUS<<1,RADIUS<<1);
         int endX=x,endY=y;
@@ -79,6 +87,42 @@ public class Tank {
         }
         g.drawLine(x,y,endX,endY);
     }
+    //坦克的逻辑处理
+    private void logic(){
+        switch (state){
+            case STATE_STAND:
+                break;
+            case STATE_MOVE:
+                move();
+                break;
+            case STATE_DIE:
+                break;
+
+        }
+    }
+
+    //坦克移动的功能
+    private void move(){
+        switch (dir){
+            case DIR_UP:
+                y-=speed;
+                if(y<RADIUS+GameFrame.titleBarH)y=RADIUS+GameFrame.titleBarH;
+                break;
+            case DIR_DOWN:
+                y+=speed;
+                if(y>Constant.FRAME_HEIGHT-RADIUS-GameFrame.bottomBarH)y=Constant.FRAME_HEIGHT-RADIUS-GameFrame.bottomBarH;
+                break;
+            case DIR_LEFT:
+                x-=speed;
+                if(x<RADIUS+GameFrame.leftBarH)x=RADIUS+GameFrame.leftBarH;
+                break;
+            case DIR_RIGHT:
+                x+=speed;
+                if(x>Constant.FRAME_WIDTH-RADIUS-GameFrame.rightBarH)x=Constant.FRAME_WIDTH-RADIUS-GameFrame.rightBarH;
+                break;
+        }
+    }
+
 
     public int getX() {
         return x;
@@ -144,11 +188,39 @@ public class Tank {
         this.color = color;
     }
 
-    public List getBullets() {
+    public java.util.List<Bullet> getBullets() {
         return bullets;
     }
 
-    public void setBullets(List bullets) {
+    public void setBullets(java.util.List<Bullet> bullets) {
         this.bullets = bullets;
+    }
+
+    /**
+     * 坦克的功能，坦克开火的方法
+     * 创建了一个子弹对象，子弹对象的属性信息通过坦克的信息获得
+     * 然后将创建的子弹添加到坦克管理的容器中。
+     */
+    public void fire(){
+        int bulletX=x;
+        int bulletY=y;
+        switch (dir){
+            case DIR_UP -> bulletY-=2*RADIUS;
+            case DIR_DOWN -> bulletY+=2*RADIUS;
+            case DIR_LEFT -> bulletX-=2*RADIUS;
+            case DIR_RIGHT -> bulletX+=2*RADIUS;
+        }
+        Bullet bullet=new Bullet(bulletX,bulletY,dir,atk,color);
+        bullets.add(bullet);
+    }
+
+    /**
+     * 将当前坦克的发射的所有子弹绘制出来
+     * @param g
+     */
+    private void drawBullets(Graphics g){
+        for (Bullet bullet : bullets) {
+            bullet.draw(g);
+        }
     }
 }

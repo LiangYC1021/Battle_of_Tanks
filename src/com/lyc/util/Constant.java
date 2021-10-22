@@ -9,7 +9,7 @@ public class Constant {
     /*****************************游戏窗口相关**********************************/
     public static final String GAME_TITLE = "坦克大战";
 
-    public static final int FRAME_WIDTH=900;
+    public static final int FRAME_WIDTH=1000;
     public static final int FRAME_HEIGHT=700;
 
     public static int SCREEN_WIDTH=(int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
@@ -36,5 +36,5 @@ public class Constant {
     //字体的设置
     public static final Font GAME_FONT =new Font("幼圆",Font.BOLD,24);
 
-    public static final int REPAINT_INTERAL = 360;
+    public static final int REPAINT_INTERAL = 30;
 }
