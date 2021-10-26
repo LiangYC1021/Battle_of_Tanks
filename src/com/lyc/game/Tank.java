@@ -1,17 +1,37 @@
 package com.lyc.game;
 
+import com.lyc.util.BulletsPool;
 import com.lyc.util.Constant;
 import com.lyc.util.MyUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 /**
  * 坦克类
  */
 public class Tank {
+    //坦克的图片数组
+    private static Image[] tankImg;
+    private static Image[] enemyImg;
+    //静态代码块中对它进行初始化
+    static{
+        tankImg=new Image[4];
+        tankImg[0]=Toolkit.getDefaultToolkit().createImage("res/hero1U.gif");
+        tankImg[1]=Toolkit.getDefaultToolkit().createImage("res/hero1D.gif");
+        tankImg[2]=Toolkit.getDefaultToolkit().createImage("res/hero1L.gif");
+        tankImg[3]=Toolkit.getDefaultToolkit().createImage("res/hero1R.gif");
+
+        enemyImg=new Image[4];
+        enemyImg[0]=Toolkit.getDefaultToolkit().createImage("res/enemy1U.gif");
+        enemyImg[1]=Toolkit.getDefaultToolkit().createImage("res/enemy1D.gif");
+        enemyImg[2]=Toolkit.getDefaultToolkit().createImage("res/enemy1L.gif");
+        enemyImg[3]=Toolkit.getDefaultToolkit().createImage("res/enemy1R.gif");
+    }
+
     //四个方向
     public static final int DIR_UP=0;
     public static final int DIR_DOWN=1;
@@ -36,6 +56,7 @@ public class Tank {
     private int dir;
     private int state=STATE_STAND;
     private Color color;
+    private boolean isEnemy=false;
 
     //TODO 炮弹
     private List<Bullet> bullets =new ArrayList();
@@ -47,6 +68,21 @@ public class Tank {
         color= MyUtil.getRandomColor();
     }
 
+    //用于创建一个敌人的坦克
+    public static Tank createEnemy(){
+        int x= MyUtil.getRandomNumber(0,2)==0 ? RADIUS+GameFrame.leftBarH:
+                Constant.FRAME_WIDTH-RADIUS-GameFrame.rightBarH;
+        int y=GameFrame.titleBarH+RADIUS;
+        int dir=DIR_DOWN;
+        Tank enemy = new Tank(x, y, dir);
+        enemy.isEnemy=true;
+
+        //TODO
+        enemy.state=STATE_MOVE;
+
+        return enemy;
+    }
+
     /**|
      * 绘制坦克
      * @param g
@@ -54,10 +90,25 @@ public class Tank {
     //每一帧都调用draw方法
     public void draw(Graphics g){
         logic();
-        drawTank(g);
+        drawImgTank(g);
         drawBullets(g);
     }
 
+    /**
+     * 使用图片的方式去绘制坦克
+     * @param g
+     */
+    private void drawImgTank(Graphics g){
+        if(isEnemy){
+            g.drawImage(enemyImg[dir],x-RADIUS,y-RADIUS,null);
+        }
+        else g.drawImage(tankImg[dir],x-RADIUS,y-RADIUS,null);
+    }
+
+    /**
+     * 使用系统的方式去绘制坦克
+     * @param g
+     */
     private void drawTank(Graphics g){
         g.setColor(color);
         //绘制坦克的圆
@@ -205,12 +256,20 @@ public class Tank {
         int bulletX=x;
         int bulletY=y;
         switch (dir){
-            case DIR_UP -> bulletY-=2*RADIUS;
-            case DIR_DOWN -> bulletY+=2*RADIUS;
-            case DIR_LEFT -> bulletX-=2*RADIUS;
-            case DIR_RIGHT -> bulletX+=2*RADIUS;
+            case DIR_UP -> bulletY-=RADIUS;
+            case DIR_DOWN -> bulletY+=RADIUS;
+            case DIR_LEFT -> bulletX-=RADIUS;
+            case DIR_RIGHT -> bulletX+=RADIUS;
         }
-        Bullet bullet=new Bullet(bulletX,bulletY,dir,atk,color);
+        //从对象池中获取子弹对象
+        Bullet bullet = BulletsPool.get();
+        //设置子弹的属性
+        bullet.setX(bulletX);
+        bullet.setY(bulletY);
+        bullet.setDir(dir);
+        bullet.setAtk(atk);
+        bullet.setColor(color);
+        bullet.setVisible(true);
         bullets.add(bullet);
     }
 
@@ -221,6 +280,15 @@ public class Tank {
     private void drawBullets(Graphics g){
         for (Bullet bullet : bullets) {
             bullet.draw(g);
+        }
+        //遍历所有的子弹,将不可见的子弹移除，并还原回对象池
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            if(!bullet.isVisible()){
+                Bullet remove = bullets.remove(i);
+                BulletsPool.theReturn(remove);
+            }
+//            System.out.println("坦克的子弹的数量："+bullets.size());
         }
     }
 }

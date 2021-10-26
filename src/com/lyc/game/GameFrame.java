@@ -1,11 +1,15 @@
 package com.lyc.game;
 
+import com.lyc.util.Constant;
+
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.lyc.util.Constant.*;
 /**
@@ -24,7 +28,11 @@ public class GameFrame extends Frame implements Runnable{
     public static int bottomBarH;
     public static int leftBarH;
     public static int rightBarH;
+
+    //定义坦克对象
     private Tank myTank;
+    //敌人的坦克容器
+    private List<Tank> enemies=new ArrayList<>();
 
     /**
      * 对窗口进行初始化
@@ -102,7 +110,16 @@ public class GameFrame extends Frame implements Runnable{
         g.setColor(Color.BLACK);
         g.fillRect(0,0,FRAME_WIDTH,FRAME_HEIGHT);
 
+        drawEnemies(g);
         myTank.draw(g);
+    }
+
+    //绘制所有的敌人坦克
+    private void drawEnemies(Graphics g){
+        for (int i = 0; i < enemies.size(); i++) {
+            Tank enemy=enemies.get(i);
+            enemy.draw(g);
+        }
     }
 
     private void drawAbout(Graphics g) {
@@ -288,6 +305,24 @@ public class GameFrame extends Frame implements Runnable{
         gameState=STATE_RUN;
         //创建坦克对象、敌人的坦克对象
         myTank=new Tank(400,200,Tank.DIR_DOWN);
+
+        //使用一个单独的线程用于控制生产敌人的坦克
+        new Thread(){
+            @Override
+            public void run() {
+                while(true){
+                    if(enemies.size()< ENEMY_MAX_COUNT){
+                        Tank enemy=Tank.createEnemy();
+                        enemies.add(enemy);
+                    }
+                    try {
+                        Thread.sleep(ENEMY_BORN_INTERVAL);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 
     @Override
@@ -296,7 +331,7 @@ public class GameFrame extends Frame implements Runnable{
             //在此调用repaint，回调update
             repaint();
             try {
-                Thread.sleep(REPAINT_INTERAL);
+                Thread.sleep(REPAINT_INTERVAL);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

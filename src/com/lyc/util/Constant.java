@@ -36,5 +36,8 @@ public class Constant {
     //字体的设置
     public static final Font GAME_FONT =new Font("幼圆",Font.BOLD,24);
 
-    public static final int REPAINT_INTERAL = 30;
+    public static final int REPAINT_INTERVAL = 30;
+    //最大敌人数量
+    public static final int ENEMY_MAX_COUNT=10;
+    public static final int ENEMY_BORN_INTERVAL =5000;
 }
