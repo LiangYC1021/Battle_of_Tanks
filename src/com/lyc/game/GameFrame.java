@@ -1,5 +1,8 @@
 package com.lyc.game;
 
+import com.lyc.tank.EnemyTank;
+import com.lyc.tank.MyTank;
+import com.lyc.tank.Tank;
 import com.lyc.util.Constant;
 
 import java.awt.*;
@@ -304,7 +307,8 @@ public class GameFrame extends Frame implements Runnable{
     private void newGame() {
         gameState=STATE_RUN;
         //创建坦克对象、敌人的坦克对象
-        myTank=new Tank(400,200,Tank.DIR_DOWN);
+        myTank=new MyTank(400,200,Tank.DIR_DOWN);
+
 
         //使用一个单独的线程用于控制生产敌人的坦克
         new Thread(){
@@ -312,7 +316,7 @@ public class GameFrame extends Frame implements Runnable{
             public void run() {
                 while(true){
                     if(enemies.size()< ENEMY_MAX_COUNT){
-                        Tank enemy=Tank.createEnemy();
+                        Tank enemy= EnemyTank.createEnemy();
                         enemies.add(enemy);
                     }
                     try {

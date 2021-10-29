@@ -1,5 +1,7 @@
-package com.lyc.game;
+package com.lyc.tank;
 
+import com.lyc.game.Bullet;
+import com.lyc.game.GameFrame;
 import com.lyc.util.BulletsPool;
 import com.lyc.util.Constant;
 import com.lyc.util.MyUtil;
@@ -7,31 +9,12 @@ import com.lyc.util.MyUtil;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 
 /**
  * 坦克类
  */
-public class Tank {
-    //坦克的图片数组
-    private static Image[] tankImg;
-    private static Image[] enemyImg;
-    //静态代码块中对它进行初始化
-    static{
-        tankImg=new Image[4];
-        tankImg[0]=Toolkit.getDefaultToolkit().createImage("res/hero1U.gif");
-        tankImg[1]=Toolkit.getDefaultToolkit().createImage("res/hero1D.gif");
-        tankImg[2]=Toolkit.getDefaultToolkit().createImage("res/hero1L.gif");
-        tankImg[3]=Toolkit.getDefaultToolkit().createImage("res/hero1R.gif");
-
-        enemyImg=new Image[4];
-        enemyImg[0]=Toolkit.getDefaultToolkit().createImage("res/enemy1U.gif");
-        enemyImg[1]=Toolkit.getDefaultToolkit().createImage("res/enemy1D.gif");
-        enemyImg[2]=Toolkit.getDefaultToolkit().createImage("res/enemy1L.gif");
-        enemyImg[3]=Toolkit.getDefaultToolkit().createImage("res/enemy1R.gif");
-    }
-
+public abstract class Tank {
     //四个方向
     public static final int DIR_UP=0;
     public static final int DIR_DOWN=1;
@@ -61,27 +44,14 @@ public class Tank {
     //TODO 炮弹
     private List<Bullet> bullets =new ArrayList();
 
-    public Tank(int x,int y,int dir){
+    public Tank(int x, int y, int dir){
         this.x=x;
         this.y=y;
         this.dir=dir;
         color= MyUtil.getRandomColor();
     }
 
-    //用于创建一个敌人的坦克
-    public static Tank createEnemy(){
-        int x= MyUtil.getRandomNumber(0,2)==0 ? RADIUS+GameFrame.leftBarH:
-                Constant.FRAME_WIDTH-RADIUS-GameFrame.rightBarH;
-        int y=GameFrame.titleBarH+RADIUS;
-        int dir=DIR_DOWN;
-        Tank enemy = new Tank(x, y, dir);
-        enemy.isEnemy=true;
 
-        //TODO
-        enemy.state=STATE_MOVE;
-
-        return enemy;
-    }
 
     /**|
      * 绘制坦克
@@ -98,12 +68,7 @@ public class Tank {
      * 使用图片的方式去绘制坦克
      * @param g
      */
-    private void drawImgTank(Graphics g){
-        if(isEnemy){
-            g.drawImage(enemyImg[dir],x-RADIUS,y-RADIUS,null);
-        }
-        else g.drawImage(tankImg[dir],x-RADIUS,y-RADIUS,null);
-    }
+    public abstract void drawImgTank(Graphics g);
 
     /**
      * 使用系统的方式去绘制坦克
@@ -239,12 +204,20 @@ public class Tank {
         this.color = color;
     }
 
-    public java.util.List<Bullet> getBullets() {
+    public List<Bullet> getBullets() {
         return bullets;
     }
 
-    public void setBullets(java.util.List<Bullet> bullets) {
+    public void setBullets(List<Bullet> bullets) {
         this.bullets = bullets;
+    }
+
+    public boolean isEnemy() {
+        return isEnemy;
+    }
+
+    public void setEnemy(boolean enemy) {
+        isEnemy = enemy;
     }
 
     /**

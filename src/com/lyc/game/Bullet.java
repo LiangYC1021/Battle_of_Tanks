@@ -1,5 +1,6 @@
 package com.lyc.game;
 
+import com.lyc.tank.Tank;
 import com.lyc.util.Constant;
 
 import java.awt.*;

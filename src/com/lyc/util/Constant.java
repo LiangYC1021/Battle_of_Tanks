@@ -40,4 +40,8 @@ public class Constant {
     //最大敌人数量
     public static final int ENEMY_MAX_COUNT=10;
     public static final int ENEMY_BORN_INTERVAL =5000;
+
+    public static final int ENEMY_AI_INTERVAL=3000;
+    public static final double ENEMY_FIRE_PERCENT=0.03;
+
 }
