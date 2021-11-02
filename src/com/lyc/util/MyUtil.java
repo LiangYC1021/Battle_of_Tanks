@@ -29,4 +29,28 @@ public class MyUtil {
         Color c=new Color(red,green,blue);
         return c;
     }
+
+    /**
+     * 判断某一个点是否在一个正方形的内部
+     * @param rectX 正方形中心点的x坐标
+     * @param rectY 正方形中心点的y坐标
+     * @param radius 正方形边长的一半
+     * @param pointX 点的x坐标
+     * @param pointY 点的y坐标
+     * @return 如果点在正方形内部，返回true，否则返回false
+     */
+    public static final boolean isCollide(int rectX,int rectY,int radius,int pointX,int pointY){
+        int disX=Math.abs(rectX-pointX);
+        int disY=Math.abs(rectY-pointY);
+        return (disX<radius)&&(disY<radius);
+    }
+
+    /**
+     * 根据图片的路径获取图片
+     * @param path 图片资源的路径
+     * @return
+     */
+    public static final Image createImage(String path){
+        return Toolkit.getDefaultToolkit().createImage(path);
+    }
 }

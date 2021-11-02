@@ -1,5 +1,7 @@
 package com.lyc.tank;
 
+import com.lyc.util.MyUtil;
+
 import java.awt.*;
 
 /**
@@ -10,10 +12,10 @@ public class MyTank extends Tank{
     private static Image[] tankImg;
     static{
         tankImg=new Image[4];
-        tankImg[0]=Toolkit.getDefaultToolkit().createImage("res/hero1U.gif");
-        tankImg[1]=Toolkit.getDefaultToolkit().createImage("res/hero1D.gif");
-        tankImg[2]=Toolkit.getDefaultToolkit().createImage("res/hero1L.gif");
-        tankImg[3]=Toolkit.getDefaultToolkit().createImage("res/hero1R.gif");
+        tankImg[0]= MyUtil.createImage("res/hero1U.gif");
+        tankImg[1]= MyUtil.createImage("res/hero1D.gif");
+        tankImg[2]= MyUtil.createImage("res/hero1L.gif");
+        tankImg[3]= MyUtil.createImage("res/hero1R.gif");
     }
 
     public MyTank(int x, int y, int dir) {
@@ -24,4 +26,5 @@ public class MyTank extends Tank{
     public void drawImgTank(Graphics g) {
         g.drawImage(tankImg[getDir()],getX()-RADIUS,getY()-RADIUS,null);
     }
+
 }

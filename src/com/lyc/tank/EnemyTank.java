@@ -15,10 +15,10 @@ public class EnemyTank extends Tank{
     private long aiTime;
     static{
         enemyImg=new Image[4];
-        enemyImg[0]=Toolkit.getDefaultToolkit().createImage("res/enemy1U.gif");
-        enemyImg[1]=Toolkit.getDefaultToolkit().createImage("res/enemy1D.gif");
-        enemyImg[2]=Toolkit.getDefaultToolkit().createImage("res/enemy1L.gif");
-        enemyImg[3]=Toolkit.getDefaultToolkit().createImage("res/enemy1R.gif");
+        enemyImg[0]= MyUtil.createImage("res/enemy1U.gif");
+        enemyImg[1]= MyUtil.createImage("res/enemy1D.gif");
+        enemyImg[2]= MyUtil.createImage("res/enemy1L.gif");
+        enemyImg[3]= MyUtil.createImage("res/enemy1R.gif");
     }
     public EnemyTank(int x, int y, int dir) {
         super(x, y, dir);

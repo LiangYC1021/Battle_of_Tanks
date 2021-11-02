@@ -1,9 +1,11 @@
 package com.lyc.tank;
 
 import com.lyc.game.Bullet;
+import com.lyc.game.Explode;
 import com.lyc.game.GameFrame;
 import com.lyc.util.BulletsPool;
 import com.lyc.util.Constant;
+import com.lyc.util.ExplodesPool;
 import com.lyc.util.MyUtil;
 
 import java.awt.*;
@@ -41,8 +43,10 @@ public abstract class Tank {
     private Color color;
     private boolean isEnemy=false;
 
-    //TODO 炮弹
+    //炮弹
     private List<Bullet> bullets =new ArrayList();
+    //使用容器来保存当前坦克上的所有爆炸的效果
+    private List<Explode> explodes=new ArrayList<>();
 
     public Tank(int x, int y, int dir){
         this.x=x;
@@ -259,9 +263,51 @@ public abstract class Tank {
             Bullet bullet = bullets.get(i);
             if(!bullet.isVisible()){
                 Bullet remove = bullets.remove(i);
+                i--;
                 BulletsPool.theReturn(remove);
             }
-//            System.out.println("坦克的子弹的数量："+bullets.size());
+        }
+    }
+
+    //坦克和敌人的子弹碰撞的方法
+    public void collideBullets(List<Bullet> bullets){
+        //遍历所有子弹，依次和当前的坦克进行碰撞的检测
+        for (Bullet bullet : bullets) {
+            int bulletX=bullet.getX();
+            int bulletY=bullet.getY();
+
+            //子弹和坦克碰撞了
+            if(MyUtil.isCollide(x,y,RADIUS,bulletX,bulletY)){
+                //子弹消失
+                bullet.setVisible(false);
+                //坦克受到伤害
+                //添加爆炸效果
+                Explode explode = ExplodesPool.get();
+                explode.setX(bulletX);
+                explode.setY(bulletY);
+                explode.setVisible(true);
+                explode.setIndex(0);
+                explodes.add(explode);
+            }
+        }
+    }
+
+    /**
+     * 绘制当前坦克上的所有的爆炸的效果
+     * @param g
+     */
+    public void drawExplodes(Graphics g){
+        for (Explode explode : explodes) {
+            explode.draw(g);
+        }
+        //将不可见的爆炸效果删除，还给对象池
+        for (int i = 0; i < explodes.size(); i++) {
+            Explode explode=explodes.get(i);
+            if(!explode.isVisible()){
+                Explode remove = explodes.remove(i);
+                ExplodesPool.theReturn(remove);
+                i--;
+            }
         }
     }
 }
