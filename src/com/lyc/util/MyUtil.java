@@ -53,4 +53,21 @@ public class MyUtil {
     public static final Image createImage(String path){
         return Toolkit.getDefaultToolkit().createImage(path);
     }
+
+    public static final String[] USER_NAME = {
+        "G","壹号玩家","非白","亚当斯","传奇","凤凰","冠军","卡特","国王","女王","奥兹",
+        "公爵","呆头鹅","厨师","厄斐琉斯","英雄","贝尔","鲨鱼","马丁","船长","莫里斯",
+        "闪电侠","盖伊","佐伊","怀特","宙斯","X","希拉","小袋鼠","李","库帕","霞",
+        "锤石","卡莎","米勒","爱德华","Zed","探险家","摩根","小学弟","小袋鼠","格林",
+        "旋风","托马斯","瑞兹","卢锡安","莫德凯撒","洛","烬","嘉文","熏伯","荃","库拉肯",
+        "休斯","索尔","塔莉垭","Umi","Vex","吸血鬼","厅长","主播","地球人"
+    };
+
+    /**
+     * 得到一个随机的名字
+     * @return
+     */
+    public static final String getRandomName(){
+        return USER_NAME[getRandomNumber(0,USER_NAME.length)];
+    }
 }

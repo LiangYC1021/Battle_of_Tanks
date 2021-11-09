@@ -4,6 +4,7 @@ import com.lyc.tank.EnemyTank;
 import com.lyc.tank.MyTank;
 import com.lyc.tank.Tank;
 import com.lyc.util.Constant;
+import com.lyc.util.MyUtil;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -11,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,13 @@ import static com.lyc.util.Constant.*;
  * 所有游戏展示的内容都要在该类中实现
  */
 public class GameFrame extends Frame implements Runnable{
+    //第一次使用的时候加载，而不是类加载的时候加载
+    private Image overImg=null;
+
     //1.定义一张和屏幕大小一样的图片
     private BufferedImage bufImg=new BufferedImage(FRAME_WIDTH,FRAME_HEIGHT,BufferedImage.TYPE_4BYTE_ABGR);
     //游戏状态
-    public static int gameState;
+    private static int gameState;
     //菜单指向
     private int menuIndex;
     //标题栏 底部栏 两侧栏的高度或宽度
@@ -104,8 +109,25 @@ public class GameFrame extends Frame implements Runnable{
         g1.drawImage(bufImg,0,0,null);
     }
 
+    /**
+     * 绘制游戏结束的方法 TODO
+     * @param g
+     */
     private void drawOver(Graphics g) {
+        //保证只加载一次
+        if(overImg==null)overImg= MyUtil.createImage("res/OVER.png");
+        g.setColor(Color.BLACK);
+        g.fillRect(0,0,FRAME_WIDTH,FRAME_HEIGHT);
 
+        int imgW=overImg.getWidth(null);
+        int imgH=overImg.getHeight(null);
+        g.drawImage(overImg,FRAME_WIDTH-imgW>>1,FRAME_HEIGHT-imgH>>1,null);
+
+        //添加按键提示信息
+
+        g.setColor(Color.WHITE);
+        g.drawString(OVER_STR0,10,FRAME_HEIGHT-30);
+        g.drawString(OVER_STR1,FRAME_WIDTH-250,FRAME_HEIGHT-30);
     }
 
     private void drawRun(Graphics g) {
@@ -121,11 +143,18 @@ public class GameFrame extends Frame implements Runnable{
     }
 
     //绘制所有的敌人坦克
+    //如果坦克已经死亡，从容器中移除
     private void drawEnemies(Graphics g){
         for (int i = 0; i < enemies.size(); i++) {
             Tank enemy=enemies.get(i);
+            if(enemy.isDie()){
+                enemies.remove(i);
+                i--;
+                continue;
+            }
             enemy.draw(g);
         }
+        System.out.println("敌人数量： "+enemies.size());
     }
 
     private void drawAbout(Graphics g) {
@@ -235,8 +264,8 @@ public class GameFrame extends Frame implements Runnable{
                 break;
 
             case KeyEvent.VK_ENTER:
-                //TODO
-                newGame();
+
+                if(menuIndex==0)newGame();
                 break;
         }
     }
@@ -284,10 +313,35 @@ public class GameFrame extends Frame implements Runnable{
         }
     }
 
+    //游戏结束的按键的处理 TODO
     private void keyPressedEventOver(int keyCode) {
-
+        //结束游戏
+        if(keyCode==KeyEvent.VK_ESCAPE){
+            System.exit(0);
+        }
+        else if(keyCode== KeyEvent.VK_ENTER){
+            setGameState(STATE_MENU);
+            //游戏需要重置，很多操作都要关闭
+            resetGame();
+        }
     }
 
+    //重置游戏状态
+    private void resetGame(){
+        menuIndex=0;
+
+        //先让自己的坦克的子弹还回对象池
+        myTank.bulletsReturn();
+        //销毁自己的坦克
+        myTank=null;
+
+        //先让敌人的子弹还回对象池
+        for (Tank enemy : enemies) {
+            enemy.bulletsReturn();
+        }
+        //清空敌人
+        enemies.clear();
+    }
     //按键松开的时候，游戏中的处理方法
     private void keyReleasedEventRun(int keyCode) {
         switch (keyCode) {
@@ -326,6 +380,10 @@ public class GameFrame extends Frame implements Runnable{
                         Thread.sleep(ENEMY_BORN_INTERVAL);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }
+                    //只有在游戏run状态下才创建敌人
+                    if(gameState!=STATE_RUN){
+                        break;
                     }
                 }
             }
@@ -367,4 +425,12 @@ public class GameFrame extends Frame implements Runnable{
         myTank.drawExplodes(g);
     }
 
+    //获得游戏状态和改变游戏状态
+    public static void setGameState(int gameState) {
+        GameFrame.gameState = gameState;
+    }
+
+    public static int getGameState() {
+        return gameState;
+    }
 }

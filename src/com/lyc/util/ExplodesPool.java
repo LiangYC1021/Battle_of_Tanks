@@ -6,6 +6,9 @@ import com.lyc.game.Explode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 爆炸效果的对象池
+ */
 public class ExplodesPool {
 
     public static final int DEFAULT_POOL_SIZE=10;

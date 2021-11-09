@@ -3,10 +3,7 @@ package com.lyc.tank;
 import com.lyc.game.Bullet;
 import com.lyc.game.Explode;
 import com.lyc.game.GameFrame;
-import com.lyc.util.BulletsPool;
-import com.lyc.util.Constant;
-import com.lyc.util.ExplodesPool;
-import com.lyc.util.MyUtil;
+import com.lyc.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,17 +28,20 @@ public abstract class Tank {
     public static final int STATE_MOVE=1;
     public static final int STATE_DIE=2;
     //坦克的初始生命
-    public static final int DEFAULT_HP=1000;
+    public static final int DEFAULT_HP=5;
 
     private int x,y;
 
-    private int hp;
+    private int hp=DEFAULT_HP;
+    private String name;
     private int atk;
     private int speed=DEFAULT_SPEED;
     private int dir;
     private int state=STATE_STAND;
     private Color color;
     private boolean isEnemy=false;
+
+    private BloodBar bar=new BloodBar();
 
     //炮弹
     private List<Bullet> bullets =new ArrayList();
@@ -52,11 +52,18 @@ public abstract class Tank {
         this.x=x;
         this.y=y;
         this.dir=dir;
-        color= MyUtil.getRandomColor();
+        initTank();
     }
 
+    public Tank(){
+        initTank();
+    }
 
-
+    private void initTank(){
+        color= MyUtil.getRandomColor();
+        name=MyUtil.getRandomName();
+        atk=1;
+    }
     /**|
      * 绘制坦克
      * @param g
@@ -66,8 +73,15 @@ public abstract class Tank {
         logic();
         drawImgTank(g);
         drawBullets(g);
+        drawName(g);
+        bar.draw(g);
     }
 
+    private void drawName(Graphics g){
+        g.setColor(color);
+        g.setFont(Constant.SMALL_FONT);
+        g.drawString(name,x-RADIUS,y-35);
+    }
     /**
      * 使用图片的方式去绘制坦克
      * @param g
@@ -224,6 +238,14 @@ public abstract class Tank {
         isEnemy = enemy;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     /**
      * 坦克的功能，坦克开火的方法
      * 创建了一个子弹对象，子弹对象的属性信息通过坦克的信息获得
@@ -269,6 +291,15 @@ public abstract class Tank {
         }
     }
 
+    /**
+     * 坦克销毁的时候处理坦克的所有子弹
+     */
+    public void bulletsReturn(){
+        for (Bullet bullet : bullets) {
+            BulletsPool.theReturn(bullet);
+        }
+        bullets.clear();
+    }
     //坦克和敌人的子弹碰撞的方法
     public void collideBullets(List<Bullet> bullets){
         //遍历所有子弹，依次和当前的坦克进行碰撞的检测
@@ -281,6 +312,7 @@ public abstract class Tank {
                 //子弹消失
                 bullet.setVisible(false);
                 //坦克受到伤害
+                hurt(bullet);
                 //添加爆炸效果
                 Explode explode = ExplodesPool.get();
                 explode.setX(bulletX);
@@ -291,7 +323,37 @@ public abstract class Tank {
             }
         }
     }
+    private void hurt(Bullet bullet){
+        int atk=bullet.getAtk();
+        System.out.println("atk = "+atk);
+        hp-=atk;
+        if(hp<=0) {
+            hp = 0;
+            die();
+        }
+    }
 
+    //坦克死亡需要处理的内容 TODO
+    private void die(){
+        //敌人
+        if(isEnemy){
+            //TODO 敌人坦克被消灭了 归还对象池
+            EnemyTanksPool.theReturn(this);
+        }
+        //GG TODO
+        else {
+            GameFrame.setGameState(Constant.STATE_OVER);
+
+        }
+    }
+
+    /**
+     * 判断当前坦克是否死亡
+     * @return
+     */
+    public boolean isDie(){
+        return hp<=0;
+    }
     /**
      * 绘制当前坦克上的所有的爆炸的效果
      * @param g
@@ -308,6 +370,24 @@ public abstract class Tank {
                 ExplodesPool.theReturn(remove);
                 i--;
             }
+        }
+    }
+
+    //内部类，来表示坦克的血条
+    class BloodBar{
+        public static final int BAR_LENGTH=RADIUS*2;
+        public static final int BAR_HEIGHT=5;
+
+        public void draw(Graphics g){
+            //填充底色
+            g.setColor(Color.YELLOW);
+            g.fillRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,BAR_LENGTH,BAR_HEIGHT);
+            //红色的当前血量
+            g.setColor(Color.RED);
+            g.fillRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,hp*BAR_LENGTH/DEFAULT_HP,BAR_HEIGHT);
+            //蓝色的边框
+            g.setColor(Color.WHITE);
+            g.drawRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,BAR_LENGTH,BAR_HEIGHT);
         }
     }
 }

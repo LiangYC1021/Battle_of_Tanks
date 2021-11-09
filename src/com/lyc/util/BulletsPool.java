@@ -43,5 +43,4 @@ public class BulletsPool {
         }
         else pool.add(bullet);
     }
-
 }

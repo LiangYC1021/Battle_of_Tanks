@@ -34,8 +34,12 @@ public class Constant {
             "退出游戏"
     };
 
+    public static final String OVER_STR0="按ESC键退出游戏";
+    public static final String OVER_STR1="按ENTER键回到主菜单";
+
     //字体的设置
     public static final Font GAME_FONT =new Font("幼圆",Font.BOLD,24);
+    public static final Font SMALL_FONT =new Font("幼圆",Font.BOLD,16);
 
     public static final int REPAINT_INTERVAL = 30;
     //最大敌人数量

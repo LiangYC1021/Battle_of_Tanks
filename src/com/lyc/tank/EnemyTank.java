@@ -2,6 +2,7 @@ package com.lyc.tank;
 
 import com.lyc.game.GameFrame;
 import com.lyc.util.Constant;
+import com.lyc.util.EnemyTanksPool;
 import com.lyc.util.MyUtil;
 
 import java.awt.*;
@@ -20,9 +21,13 @@ public class EnemyTank extends Tank{
         enemyImg[2]= MyUtil.createImage("res/enemy1L.gif");
         enemyImg[3]= MyUtil.createImage("res/enemy1R.gif");
     }
-    public EnemyTank(int x, int y, int dir) {
+
+    private EnemyTank(int x, int y, int dir) {
         super(x, y, dir);
         //敌人一旦创建就开始计时
+        aiTime=System.currentTimeMillis();
+    }
+    public EnemyTank(){
         aiTime=System.currentTimeMillis();
     }
 
@@ -32,10 +37,16 @@ public class EnemyTank extends Tank{
                 Constant.FRAME_WIDTH-RADIUS-GameFrame.rightBarH;
         int y=GameFrame.titleBarH+RADIUS;
         int dir=DIR_DOWN;
-        Tank enemy = new EnemyTank(x, y, dir);
+//        Tank enemy = new EnemyTank(x, y, dir);
+        //用对象池来创建敌人坦克
+        Tank enemy=EnemyTanksPool.get();
+        enemy.setX(x);
+        enemy.setY(y);
+        enemy.setDir(dir);
+
         enemy.setEnemy(true);
-        //TODO
-        enemy.setState(STATE_MOVE);;
+        enemy.setState(STATE_MOVE);
+        enemy.setHp(Tank.DEFAULT_HP);
         return enemy;
     }
 
@@ -48,7 +59,10 @@ public class EnemyTank extends Tank{
      * 敌人的AI
      */
     private void ai(){
-        if(System.currentTimeMillis()-aiTime > Constant.ENEMY_AI_INTERVAL){
+//        int INTERVAL=Constant.ENEMY_AI_INTERVAL;
+        int INTERVAL=MyUtil.getRandomNumber(2000,3000);
+        System.out.println("间隔："+INTERVAL);
+        if(System.currentTimeMillis()-aiTime > INTERVAL){
             //间隔5秒随机一个状态
             setState(MyUtil.getRandomNumber(0,2) ==0 ? STATE_STAND:STATE_MOVE);
             setDir(MyUtil.getRandomNumber(DIR_UP,DIR_RIGHT+1));
