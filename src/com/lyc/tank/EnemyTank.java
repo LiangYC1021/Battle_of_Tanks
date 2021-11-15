@@ -11,6 +11,10 @@ import java.awt.*;
  * 敌人坦克类
  */
 public class EnemyTank extends Tank{
+    public static final int TYPE_NORMAL=0;
+    public static final int TYPE_HEAVY=1;
+    public static final int TYPE_SWIFT=2;
+    int type;
     private static Image[] enemyImg;
     //时间戳起始点，记录5秒开始的时间
     private long aiTime;
@@ -26,6 +30,15 @@ public class EnemyTank extends Tank{
         super(x, y, dir);
         //敌人一旦创建就开始计时
         aiTime=System.currentTimeMillis();
+        type=MyUtil.getRandomNumber(0,3);
+        if(type==TYPE_HEAVY){
+            setHp(DEFAULT_HP+1);
+            setSpeed(DEFAULT_SPEED/2);
+        }
+        else if(type==TYPE_SWIFT){
+            setHp(DEFAULT_HP-1);
+            setSpeed(DEFAULT_SPEED*2);
+        }
     }
     public EnemyTank(){
         aiTime=System.currentTimeMillis();
@@ -61,7 +74,6 @@ public class EnemyTank extends Tank{
     private void ai(){
 //        int INTERVAL=Constant.ENEMY_AI_INTERVAL;
         int INTERVAL=MyUtil.getRandomNumber(2000,3000);
-        System.out.println("间隔："+INTERVAL);
         if(System.currentTimeMillis()-aiTime > INTERVAL){
             //间隔5秒随机一个状态
             setState(MyUtil.getRandomNumber(0,2) ==0 ? STATE_STAND:STATE_MOVE);

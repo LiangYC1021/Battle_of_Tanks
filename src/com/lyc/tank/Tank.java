@@ -3,6 +3,7 @@ package com.lyc.tank;
 import com.lyc.game.Bullet;
 import com.lyc.game.Explode;
 import com.lyc.game.GameFrame;
+import com.lyc.map.MapTile;
 import com.lyc.util.*;
 
 import java.awt.*;
@@ -28,10 +29,10 @@ public abstract class Tank {
     public static final int STATE_MOVE=1;
     public static final int STATE_DIE=2;
     //坦克的初始生命
-    public static final int DEFAULT_HP=5;
+    public static final int DEFAULT_HP=2;
 
     private int x,y;
-
+    private int oldX,oldY;
     private int hp=DEFAULT_HP;
     private String name;
     private int atk;
@@ -137,6 +138,7 @@ public abstract class Tank {
 
     //坦克移动的功能
     private void move(){
+        oldX=x;oldY=y;
         switch (dir){
             case DIR_UP:
                 y-=speed;
@@ -251,7 +253,12 @@ public abstract class Tank {
      * 创建了一个子弹对象，子弹对象的属性信息通过坦克的信息获得
      * 然后将创建的子弹添加到坦克管理的容器中。
      */
+    boolean canFire=true;
+    private long fireTime=0;
+    public static final int FIRE_INTERVAL=500;
     public void fire(){
+//        if(System.currentTimeMillis()-fireTime<=FIRE_INTERVAL)return;
+        if(!canFire)return;
         int bulletX=x;
         int bulletY=y;
         switch (dir){
@@ -270,6 +277,10 @@ public abstract class Tank {
         bullet.setColor(color);
         bullet.setVisible(true);
         bullets.add(bullet);
+
+        //发射子弹之后，记录时间
+        fireTime=System.currentTimeMillis();
+        canFire=false;
     }
 
     /**
@@ -287,6 +298,7 @@ public abstract class Tank {
                 Bullet remove = bullets.remove(i);
                 i--;
                 BulletsPool.theReturn(remove);
+                canFire=true;
             }
         }
     }
@@ -313,15 +325,18 @@ public abstract class Tank {
                 bullet.setVisible(false);
                 //坦克受到伤害
                 hurt(bullet);
-                //添加爆炸效果
-                Explode explode = ExplodesPool.get();
-                explode.setX(bulletX);
-                explode.setY(bulletY);
-                explode.setVisible(true);
-                explode.setIndex(0);
-                explodes.add(explode);
+                addExplode(bulletX,bulletY);
             }
         }
+    }
+    private void addExplode(int x,int y){
+        //添加爆炸效果
+        Explode explode = ExplodesPool.get();
+        explode.setX(x);
+        explode.setY(y);
+        explode.setVisible(true);
+        explode.setIndex(0);
+        explodes.add(explode);
     }
     private void hurt(Bullet bullet){
         int atk=bullet.getAtk();
@@ -342,8 +357,7 @@ public abstract class Tank {
         }
         //GG TODO
         else {
-            GameFrame.setGameState(Constant.STATE_OVER);
-
+            delaySecondsToOver(1000);
         }
     }
 
@@ -389,5 +403,92 @@ public abstract class Tank {
             g.setColor(Color.WHITE);
             g.drawRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,BAR_LENGTH,BAR_HEIGHT);
         }
+    }
+
+    //坦克的子弹和地图块的碰撞
+    public void bulletCollideMapTiles(List<MapTile> tiles){
+        for (MapTile tile : tiles) {
+            if(tile.isCollideBullet(bullets)){
+                //添加爆炸效果
+                addExplode(tile.getX()+MapTile.radius, tile.getY()+MapTile.radius);
+                //设置地图块销毁
+                tile.setVisible(false);
+                //归还对象池
+                MapTilePool.theReturn(tile);
+                canFire=true;
+                //如果老巢被销毁 一秒后切换到游戏结束的画面
+                if(tile.isHouse()){
+                    delaySecondsToOver(3000);
+                }
+            }
+        }
+    }
+
+    /**
+     * 等待若干毫秒后游戏结束
+     * @param millisSecond
+     */
+    private void delaySecondsToOver(int millisSecond){
+        new Thread(){
+            public void run() {
+                try {
+                    Thread.sleep(millisSecond);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                GameFrame.setGameState(Constant.STATE_OVER);
+            }
+        }.start();
+    }
+    /**
+     * 从tile中提取8个点，来判断8个点是否有任何一个点和当前坦克有了碰撞
+     * @param tiles
+     * @return
+     */
+    public boolean isCollideTile(List<MapTile>tiles){
+        for (MapTile tile : tiles) {
+            //p1
+            int tileX= tile.getX();
+            int tileY= tile.getY();
+            boolean collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p2
+            tileX+=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p3
+            tileX+=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p4
+            tileY+=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p5
+            tileY+=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p6
+            tileX-=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p7
+            tileX-=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+            //p8
+            tileY-=MapTile.radius;
+            collide = MyUtil.isCollide(x, y, RADIUS, tileX, tileY);
+            if(collide)return true;
+        }
+        return false;
+    }
+
+    /**
+     * 坦克回退的方法
+     */
+    public void back(){
+        x=oldX;
+        y=oldY;
     }
 }

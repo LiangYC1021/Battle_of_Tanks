@@ -20,6 +20,8 @@ public class MyTank extends Tank{
 
     public MyTank(int x, int y, int dir) {
         super(x, y, dir);
+//        DEFAULT_HP=5;
+//        setHp(DEFAULT_HP);
     }
 
     @Override

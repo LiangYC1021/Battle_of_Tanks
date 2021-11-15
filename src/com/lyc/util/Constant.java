@@ -49,4 +49,5 @@ public class Constant {
     public static final int ENEMY_AI_INTERVAL=3000;
     public static final double ENEMY_FIRE_PERCENT=0.03;
 
+    public static final String HOUSE_STR="家";
 }

@@ -1,5 +1,7 @@
 package com.lyc.game;
 
+import com.lyc.map.GameMap;
+import com.lyc.map.MapTile;
 import com.lyc.tank.EnemyTank;
 import com.lyc.tank.MyTank;
 import com.lyc.tank.Tank;
@@ -41,6 +43,9 @@ public class GameFrame extends Frame implements Runnable{
     private Tank myTank;
     //敌人的坦克容器
     private List<Tank> enemies=new ArrayList<>();
+
+    //定义地图相关的内容
+    private GameMap gameMap;
 
     /**
      * 对窗口进行初始化
@@ -135,11 +140,16 @@ public class GameFrame extends Frame implements Runnable{
         g.setColor(Color.BLACK);
         g.fillRect(0,0,FRAME_WIDTH,FRAME_HEIGHT);
 
+        //绘制地图
+        gameMap.draw(g);
         drawEnemies(g);
         myTank.draw(g);
         drawExplodes(g);
         //子弹和坦克的碰撞方法
         bulletCollideTank();
+
+        //子弹和所有地图块的碰撞
+        bulletCollideMapTile();
     }
 
     //绘制所有的敌人坦克
@@ -341,6 +351,7 @@ public class GameFrame extends Frame implements Runnable{
         }
         //清空敌人
         enemies.clear();
+        gameMap=null;
     }
     //按键松开的时候，游戏中的处理方法
     private void keyReleasedEventRun(int keyCode) {
@@ -364,8 +375,8 @@ public class GameFrame extends Frame implements Runnable{
     private void newGame() {
         gameState=STATE_RUN;
         //创建坦克对象、敌人的坦克对象
-        myTank=new MyTank(400,200,Tank.DIR_DOWN);
-
+        myTank=new MyTank(FRAME_WIDTH/3,FRAME_HEIGHT-Tank.RADIUS-GameFrame.bottomBarH,Tank.DIR_UP);
+        gameMap=new GameMap();
 
         //使用一个单独的线程用于控制生产敌人的坦克
         new Thread(){
@@ -403,8 +414,6 @@ public class GameFrame extends Frame implements Runnable{
         }
     }
 
-
-
     private void bulletCollideTank(){
         //我的坦克的子弹和敌人坦克碰撞
         for (Tank enemy : enemies) {
@@ -417,6 +426,25 @@ public class GameFrame extends Frame implements Runnable{
         }
     }
 
+    //所有子弹和地图块的碰撞
+    private void bulletCollideMapTile(){
+        //坦克的子弹和地图块的碰撞
+        myTank.bulletCollideMapTiles(gameMap.getTiles());
+        for (Tank enemy : enemies) {
+            enemy.bulletCollideMapTiles(gameMap.getTiles());
+        }
+        //坦克和地图的碰撞
+        if(myTank.isCollideTile(gameMap.getTiles())){
+            myTank.back();
+        }
+        for (Tank enemy : enemies) {
+            if(enemy.isCollideTile(gameMap.getTiles())){
+                enemy.back();
+            }
+        }
+        //清理所有被销毁的地图块
+        gameMap.clearDestroyTile();
+    }
     //所有坦克上的爆炸效果
     private void drawExplodes(Graphics g){
         for (Tank enemy : enemies) {
