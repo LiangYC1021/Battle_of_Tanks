@@ -1,11 +1,9 @@
 package com.lyc.game;
 
 import com.lyc.map.GameMap;
-import com.lyc.map.MapTile;
 import com.lyc.tank.EnemyTank;
 import com.lyc.tank.MyTank;
 import com.lyc.tank.Tank;
-import com.lyc.util.Constant;
 import com.lyc.util.MyUtil;
 
 import java.awt.*;
@@ -14,7 +12,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,16 +137,19 @@ public class GameFrame extends Frame implements Runnable{
         g.setColor(Color.BLACK);
         g.fillRect(0,0,FRAME_WIDTH,FRAME_HEIGHT);
 
-        //绘制地图
-        gameMap.draw(g);
+        //绘制地图的碰撞层
+        gameMap.drawBk(g);
         drawEnemies(g);
         myTank.draw(g);
+
+        //绘制地图的遮挡层
+        gameMap.drawCover(g);
         drawExplodes(g);
         //子弹和坦克的碰撞方法
         bulletCollideTank();
 
         //子弹和所有地图块的碰撞
-        bulletCollideMapTile();
+        bulletAndTankCollideMapTile();
     }
 
     //绘制所有的敌人坦克
@@ -427,12 +427,13 @@ public class GameFrame extends Frame implements Runnable{
     }
 
     //所有子弹和地图块的碰撞
-    private void bulletCollideMapTile(){
+    private void bulletAndTankCollideMapTile(){
         //坦克的子弹和地图块的碰撞
         myTank.bulletCollideMapTiles(gameMap.getTiles());
         for (Tank enemy : enemies) {
             enemy.bulletCollideMapTiles(gameMap.getTiles());
         }
+
         //坦克和地图的碰撞
         if(myTank.isCollideTile(gameMap.getTiles())){
             myTank.back();

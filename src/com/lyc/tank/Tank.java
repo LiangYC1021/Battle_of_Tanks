@@ -30,7 +30,7 @@ public abstract class Tank {
     public static final int STATE_DIE=2;
     //坦克的初始生命
     public static final int DEFAULT_HP=2;
-
+    public int MAX_HP=DEFAULT_HP;
     private int x,y;
     private int oldX,oldY;
     private int hp=DEFAULT_HP;
@@ -41,7 +41,8 @@ public abstract class Tank {
     private int state=STATE_STAND;
     private Color color;
     private boolean isEnemy=false;
-
+    public int type;
+    public int CUR_SPEED=DEFAULT_SPEED;
     private BloodBar bar=new BloodBar();
 
     //炮弹
@@ -248,6 +249,21 @@ public abstract class Tank {
         this.name = name;
     }
 
+    public int getMAX_HP() {
+        return MAX_HP;
+    }
+
+    public void setMAX_HP(int MAX_HP) {
+        this.MAX_HP = MAX_HP;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public int getType() {
+        return type;
+    }
     /**
      * 坦克的功能，坦克开火的方法
      * 创建了一个子弹对象，子弹对象的属性信息通过坦克的信息获得
@@ -398,7 +414,7 @@ public abstract class Tank {
             g.fillRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,BAR_LENGTH,BAR_HEIGHT);
             //红色的当前血量
             g.setColor(Color.RED);
-            g.fillRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,hp*BAR_LENGTH/DEFAULT_HP,BAR_HEIGHT);
+            g.fillRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,hp*BAR_LENGTH/MAX_HP,BAR_HEIGHT);
             //蓝色的边框
             g.setColor(Color.WHITE);
             g.drawRect(x-RADIUS,y-RADIUS-BAR_HEIGHT*2,BAR_LENGTH,BAR_HEIGHT);
@@ -411,6 +427,8 @@ public abstract class Tank {
             if(tile.isCollideBullet(bullets)){
                 //添加爆炸效果
                 addExplode(tile.getX()+MapTile.radius, tile.getY()+MapTile.radius);
+//                遇到硬块后
+                if(tile.getType()==MapTile.TYPE_HARD)continue;
                 //设置地图块销毁
                 tile.setVisible(false);
                 //归还对象池
@@ -447,6 +465,7 @@ public abstract class Tank {
      */
     public boolean isCollideTile(List<MapTile>tiles){
         for (MapTile tile : tiles) {
+            if(!tile.isVisible() || tile.getType()==MapTile.TYPE_COVER)continue;
             //p1
             int tileX= tile.getX();
             int tileY= tile.getY();

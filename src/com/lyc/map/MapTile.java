@@ -91,7 +91,7 @@ public class MapTile {
      * @return
      */
     public boolean isCollideBullet(List<Bullet> bullets){
-        if(!visible)return false;
+        if(!visible || type==TYPE_COVER)return false;
         for (Bullet bullet : bullets) {
             int bulletX= bullet.getX();
             int bulletY= bullet.getY();

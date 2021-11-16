@@ -12,33 +12,52 @@ import java.awt.*;
  */
 public class EnemyTank extends Tank{
     public static final int TYPE_NORMAL=0;
-    public static final int TYPE_HEAVY=1;
-    public static final int TYPE_SWIFT=2;
-    int type;
-    private static Image[] enemyImg;
-    //时间戳起始点，记录5秒开始的时间
+    public static final int TYPE_SWIFT=1;
+    public static final int TYPE_HEAVY=2;
+
     private long aiTime;
+    //时间戳起始点，记录5秒开始的时间
+
+    private static Image[] greyImg;
     static{
-        enemyImg=new Image[4];
-        enemyImg[0]= MyUtil.createImage("res/enemy1U.gif");
-        enemyImg[1]= MyUtil.createImage("res/enemy1D.gif");
-        enemyImg[2]= MyUtil.createImage("res/enemy1L.gif");
-        enemyImg[3]= MyUtil.createImage("res/enemy1R.gif");
+        greyImg=new Image[4];
+        greyImg[0]= MyUtil.createImage("res/enemy1U.gif");
+        greyImg[1]= MyUtil.createImage("res/enemy1D.gif");
+        greyImg[2]= MyUtil.createImage("res/enemy1L.gif");
+        greyImg[3]= MyUtil.createImage("res/enemy1R.gif");
     }
+    private static Image[] greenImg;
+    static{
+        greenImg=new Image[4];
+        greenImg[0]= MyUtil.createImage("res/enemy2U.png");
+        greenImg[1]= MyUtil.createImage("res/enemy2D.png");
+        greenImg[2]= MyUtil.createImage("res/enemy2L.png");
+        greenImg[3]= MyUtil.createImage("res/enemy2R.png");
+    }
+    private static Image[] redImg;
+    static{
+        redImg=new Image[4];
+        redImg[0]= MyUtil.createImage("res/enemy3U.png");
+        redImg[1]= MyUtil.createImage("res/enemy3D.png");
+        redImg[2]= MyUtil.createImage("res/enemy3L.png");
+        redImg[3]= MyUtil.createImage("res/enemy3R.png");
+    }
+
+
+
 
     private EnemyTank(int x, int y, int dir) {
         super(x, y, dir);
         //敌人一旦创建就开始计时
         aiTime=System.currentTimeMillis();
-        type=MyUtil.getRandomNumber(0,3);
-        if(type==TYPE_HEAVY){
-            setHp(DEFAULT_HP+1);
-            setSpeed(DEFAULT_SPEED/2);
-        }
-        else if(type==TYPE_SWIFT){
-            setHp(DEFAULT_HP-1);
-            setSpeed(DEFAULT_SPEED*2);
-        }
+//        if(type==TYPE_HEAVY){
+//            setHp(DEFAULT_HP+1);
+//            setSpeed(DEFAULT_SPEED/2);
+//        }
+//        else if(type==TYPE_SWIFT){
+//            setHp(DEFAULT_HP-1);
+//            setSpeed(DEFAULT_SPEED*2);
+//        }
     }
     public EnemyTank(){
         aiTime=System.currentTimeMillis();
@@ -56,16 +75,31 @@ public class EnemyTank extends Tank{
         enemy.setX(x);
         enemy.setY(y);
         enemy.setDir(dir);
-
         enemy.setEnemy(true);
         enemy.setState(STATE_MOVE);
         enemy.setHp(Tank.DEFAULT_HP);
+        enemy.setType(MyUtil.getRandomNumber(0,3));
+        if(enemy.getType()==TYPE_SWIFT){
+            enemy.setMAX_HP(DEFAULT_HP-1);
+            enemy.setHp(DEFAULT_HP-1);
+            enemy.setSpeed(DEFAULT_SPEED*3/2);
+            enemy.CUR_SPEED=DEFAULT_SPEED*3/2;
+        }
+        else if(enemy.getType()==TYPE_HEAVY){
+            enemy.setMAX_HP(DEFAULT_HP+1);
+            enemy.setHp(DEFAULT_HP+1);
+            enemy.setSpeed(DEFAULT_SPEED*2/3);
+            enemy.CUR_SPEED=DEFAULT_SPEED*2/3;
+        }
         return enemy;
     }
 
     public void drawImgTank(Graphics g){
         ai();
-        g.drawImage(enemyImg[getDir()],getX()-RADIUS,getY()-RADIUS,null);
+        if(type==TYPE_NORMAL)g.drawImage(greyImg[getDir()],getX()-RADIUS,getY()-RADIUS,null);
+        if(type==TYPE_SWIFT)g.drawImage(greenImg[getDir()],getX()-RADIUS,getY()-RADIUS,null);
+        if(type==TYPE_HEAVY)g.drawImage(redImg[getDir()],getX()-RADIUS,getY()-RADIUS,null);
+//        System.out.println("坦克类型:"+type);
     }
 
     /**
