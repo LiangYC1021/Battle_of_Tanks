@@ -384,7 +384,7 @@ public class GameFrame extends Frame implements Runnable{
             @Override
             public void run() {
                 while(true){
-                    if(enemies.size()< ENEMY_MAX_COUNT && TOTAL_ENEMY<=10){
+                    if(enemies.size()< ENEMY_MAX_COUNT && TOTAL_ENEMY<=20){
                         Tank enemy= EnemyTank.createEnemy();
                         enemies.add(enemy);
                         TOTAL_ENEMY+=1;
