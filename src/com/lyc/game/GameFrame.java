@@ -369,6 +369,7 @@ public class GameFrame extends Frame implements Runnable{
         }
     }
 
+    int TOTAL_ENEMY=0;
     /**
      * 开始新游戏的方法
      */
@@ -383,14 +384,19 @@ public class GameFrame extends Frame implements Runnable{
             @Override
             public void run() {
                 while(true){
-                    if(enemies.size()< ENEMY_MAX_COUNT){
+                    if(enemies.size()< ENEMY_MAX_COUNT && TOTAL_ENEMY<=10){
                         Tank enemy= EnemyTank.createEnemy();
                         enemies.add(enemy);
+                        TOTAL_ENEMY+=1;
                     }
                     try {
                         Thread.sleep(ENEMY_BORN_INTERVAL);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }
+                    if(TOTAL_ENEMY>=10 && enemies.size()==0){
+                        gameState=STATE_OVER;
+                        break;
                     }
                     //只有在游戏run状态下才创建敌人
                     if(gameState!=STATE_RUN){

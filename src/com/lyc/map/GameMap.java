@@ -30,7 +30,7 @@ public class GameMap {
     //大本营
     private TankHouse house;
     public GameMap() {
-       initMap(2);
+       initMap(1);
     }
 
     /**
